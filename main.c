@@ -149,34 +149,13 @@ void nsec_minus(ETH_TimeStamp *t);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
-/*void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-if(htim->Instance == TIM4)
+if(htim->Instance == TIM2)
 	{
-		if(synq_state > 3)		ptp_timeout++;
-		if(ptp_timeout>3)
-			{
-				udp_send1();
-				test_tout_cnt++;
-				
-				tx_buf[0] = 0x55;
-				pb1 = pbuf_alloc(PBUF_TRANSPORT, 1, PBUF_RAM);
-				err2 = pbuf_take(pb1, tx_buf, 1);
-				if(err2== ERR_OK) 
-					{
-					//Connect to the remote client 
-					udp_connect(udpc1, &remote_ip, port_copy);
-					udp_send(udpc1, pb1);
-					pbuf_free(pb1);
-					ptp_timeout = 0;
-					test_tout_cnt++;
-					}
-			
-			}
-		
+		HAL_GPIO_TogglePin(GPIOG, GPIO_PIN_3);
 	}
-
-}*/
+}
 /* USER CODE END 0 */
 
 /**
@@ -215,6 +194,8 @@ int main(void)
 	ptp_start();
 	ip_asign();
   udp_slave_init();
+	
+	HAL_TIM_Base_Start_IT(&htim2);
 	
 	//max_allowed_offset = first_max_allowed_offset;
   //HAL_TIM_Base_Start_IT(&htim4);
@@ -311,7 +292,7 @@ static void MX_TIM2_Init(void)
   htim2.Instance = TIM2;
   htim2.Init.Prescaler = 0;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 10;
+  htim2.Init.Period = 4;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
@@ -407,6 +388,13 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+	
+	/*Configure GPIO pin : PG2 PG3 */
+	GPIO_InitStruct.Pin = GPIO_PIN_2|GPIO_PIN_3;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+  HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
 
 }
 
@@ -1066,7 +1054,16 @@ void ETH_PTP_SET_TIME( ETH_TimeStamp *time)
 
 }
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+void load_target_time(ETH_TimeStamp *tg_time)
+{
+	ETH->PTPTTHR = tg_time->TimeStampHigh;
+	ETH->PTPTTLR = tg_time->TimeStampLow;
+	
+	ETH->MACIMR &= 0XFFFFFDFF; // unmask timestamp trigger interrupt
+	
+	ETH->PTPTSCR |= 0x00000010 ; //Time stamp interrupt trigger enable
 
+}
 /*uint16_t change_allowed_offset(int32_t ofset_ns)
 {
 	uint16_t  allow_offset = 0;
