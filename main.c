@@ -689,7 +689,8 @@ void udp_receive_callback(void *arg, struct udp_pcb *udpc, struct pbuf *p, const
 						adm_rate = (offset_ns_float/synq_interval) + 1;
 						mean_frq_scale_factor = adm_rate * frq_scale_factor[0];
 						
-						t_ofsset = my_abs(offset.TimeStampLow);
+						//t_ofsset = my_abs(offset.TimeStampLow);
+						t_ofsset = my_abs(endpr_ofset);
 						if(t_ofsset < 50 ){ cn1++;}
 						else if(t_ofsset < 100 ){ cn2++;}
 						else if(t_ofsset < 150 ){ cn3++;}
@@ -774,7 +775,7 @@ void udp_receive_callback(void *arg, struct udp_pcb *udpc, struct pbuf *p, const
 						mean_frq_scale_factor = (frq_scale_factor[0] + frq_scale_factor[1]+ frq_scale_factor[2])/3;
 						mean_frq_scale_factor = adm_rate * mean_frq_scale_factor;
 		
-						t_ofsset = my_abs(offset.TimeStampLow);
+						t_ofsset = my_abs(endpr_ofset);
 						if(t_ofsset < 50 ){ cn1++;}
 						else if(t_ofsset < 100 ){ cn2++;}
 						else if(t_ofsset < 150 ){ cn3++;}
@@ -853,7 +854,7 @@ void udp_receive_callback(void *arg, struct udp_pcb *udpc, struct pbuf *p, const
 			 
 		  
 			
-			 mean_frq_scale_factor = (frq_scale_factor[0] + frq_scale_factor[1] + frq_scale_factor[2] + frq_scale_factor[3])/4;
+			 
 					
 			 //if( /*(my_abs(offset.TimeStampLow) > 1000) &&*/ offset_mod_flag==0)
 			 if( offset_mod_flag==0 )
@@ -865,9 +866,11 @@ void udp_receive_callback(void *arg, struct udp_pcb *udpc, struct pbuf *p, const
 						//offset_ns_float =  endpr_ofset;
 						//offset_ns_float = -(stf4.TimeStampLow - mtf4.TimeStampLow - pr_delay.TimeStampLow)/2;
 						adm_rate = (offset_ns_float/synq_interval) + 1;
+						mean_frq_scale_factor = (frq_scale_factor[0] + frq_scale_factor[1] + frq_scale_factor[2] + frq_scale_factor[3])/4;
 						mean_frq_scale_factor = adm_rate * mean_frq_scale_factor;
 						
-						t_ofsset = my_abs(offset.TimeStampLow);
+						//t_ofsset = my_abs(offset.TimeStampLow);
+						t_ofsset = my_abs(endpr_ofset);
 						if(t_ofsset < 50 ){ cn1++;}
 						else if(t_ofsset < 100 ){ cn2++;}
 						else if(t_ofsset < 150 ){ cn3++;}
@@ -888,6 +891,7 @@ void udp_receive_callback(void *arg, struct udp_pcb *udpc, struct pbuf *p, const
 								mean_offset = sum_offset / (s8_cnt - 10);
 							}
 							
+						addend0 = ETH->PTPTSAR;		
 						addend = mean_frq_scale_factor * addend0 ;
 					  adj_freq( addend );
 					}
