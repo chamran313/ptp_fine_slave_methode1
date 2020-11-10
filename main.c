@@ -87,6 +87,7 @@ extern ETH_TimeStamp tx_ts;
 extern ETH_TimeStamp rx_ts;
 ETH_TimeStamp 	t1,t2,t3,t4, offset, pr_delay, bw1,bw2, bw3, bw4, bw5, current_time,
 								stf1, stf2, mtf1, mtf2, ts_tmp;
+ETH_TimeStamp target_time;
 #ifdef z2_synq
 	ETH_TimeStamp  mtf3, stf3; 
 #endif
@@ -144,6 +145,7 @@ int32_t my_abs(int32_t a);
 //ETH_TimeStamp nsec_minus(ETH_TimeStamp* t);
 void  minus_plus_calc(ETH_TimeStamp *time ,const ETH_TimeStamp *t1, const ETH_TimeStamp *t2, uint8_t opr );
 void nsec_minus(ETH_TimeStamp *t);
+void load_target_time(ETH_TimeStamp *tg_time);
 //uint16_t change_allowed_offset(int32_t ofset_ns);
 //void udp_send1(void);
 /* USER CODE END PFP */
@@ -197,8 +199,9 @@ int main(void)
 	
 	HAL_TIM_Base_Start_IT(&htim2);
 	
-	//max_allowed_offset = first_max_allowed_offset;
-  //HAL_TIM_Base_Start_IT(&htim4);
+	target_time.TimeStampHigh = 50;
+	target_time.TimeStampLow = 0;
+	load_target_time(&target_time);
 	//coarse_flag = 1;
 	
   /* USER CODE END 2 */
@@ -292,7 +295,7 @@ static void MX_TIM2_Init(void)
   htim2.Instance = TIM2;
   htim2.Init.Prescaler = 0;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 4;
+  htim2.Init.Period = 1;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
