@@ -57,8 +57,8 @@
 
 
 #define LWIP_PTP
-#define z2_synq
-//#define z3_synq
+#define z2_synq // if number of sync pkts is 4 define z2_synq
+#define z3_synq // if number of sync pkts is 5 define z2_synq and z3_synq
 
 #define ptp_port 	1234
 /* USER CODE END Includes */
